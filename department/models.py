@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from students.models import StudentProfileModel
-from professors.models import ProfessorProfileModel
 
 
 class FacultyModel(models.Model):
@@ -21,7 +19,7 @@ class FacultyModel(models.Model):
     )
 
     dean = models.ForeignKey(
-        ProfessorProfileModel,
+        'students.ProfileModel',
         verbose_name=u"Dean",
         null=True,
         blank=True,
@@ -47,8 +45,8 @@ class DepartmentModel(models.Model):
         verbose_name = u"Department"
         verbose_name_plural = u"Departments"
 
-    department = models.ForeignKey(
-        FacultyModel,
+    faculty = models.ForeignKey(
+        'FacultyModel',
         verbose_name=u"Faculty",
     )
 
@@ -59,15 +57,14 @@ class DepartmentModel(models.Model):
     )
 
     leader = models.ForeignKey(
-        ProfessorProfileModel,
+        'students.ProfileModel',
         verbose_name=u"Head of Department",
         blank=True,
         null=True,
-        on_delete=models.SET_NULL,
     )
 
     def __unicode__(self):
-        return u"%s, %s" % (self.department.title, self.title)
+        return u"%s" % self.title
 
 
 class StudentGroupModel(models.Model):
@@ -80,7 +77,7 @@ class StudentGroupModel(models.Model):
         verbose_name_plural = u"Student Groups"
 
     department = models.ForeignKey(
-        DepartmentModel,
+        'DepartmentModel',
         verbose_name=u"Department",
     )
 
@@ -90,16 +87,16 @@ class StudentGroupModel(models.Model):
         verbose_name=u"Group Title"
     )
 
-    leader = models.OneToOneField(
-        StudentProfileModel,
+    leader = models.ForeignKey(
+        'students.ProfileModel',
         verbose_name=u"Leader",
+        related_name='group',
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
     )
 
     mentor = models.ForeignKey(
-        ProfessorProfileModel,
+        'students.ProfileModel',
         verbose_name=u"Mentor",
         blank=True,
         null=True,
@@ -110,4 +107,4 @@ class StudentGroupModel(models.Model):
     )
 
     def __unicode__(self):
-        return u"%s, %s" % (self.department.title, self.title)
+        return u"%s" % self.title
