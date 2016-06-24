@@ -17,12 +17,14 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from rest_framework import routers
-from students.api import apiv1
+from students.api import apiv1 as apiv1s
+
 
 router = routers.DefaultRouter()
-router.register(r'users', apiv1.UserViewSet)
-router.register(r'groups', apiv1.GroupViewSet)
-router.register(r'students', apiv1.StudentViewSet)
+router.register(r'users', apiv1s.UserViewSet)
+router.register(r'groups', apiv1s.GroupViewSet)
+router.register(r'students', apiv1s.StudentViewSet)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
