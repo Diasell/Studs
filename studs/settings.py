@@ -135,12 +135,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 REGISTRATION_OPEN = True
 
 
-##################LOGIN URLS##################
-LOGIN_URL = 'users:auth_login'
-LOGOUT_URL = 'users:auth_logout'
-##################L###########################
-
-
 ################ REST FRAMEWORK ##############
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
