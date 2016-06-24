@@ -17,15 +17,15 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from rest_framework import routers
-from students import views
+from students.api import apiv1
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
-router.register(r'students', views.StudentViewSet)
+router.register(r'users', apiv1.UserViewSet)
+router.register(r'groups', apiv1.GroupViewSet)
+router.register(r'students', apiv1.StudentViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(router.urls)),
+    url(r'^api/v1/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
