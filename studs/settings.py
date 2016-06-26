@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'debug_toolbar',
     'registration',
+    'django_extensions',
     'students',
     'professors',
     'department',
