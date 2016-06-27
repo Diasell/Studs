@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v1/auth/login/$', apiv1s.LoginAPIview.as_view(), name='login'),
+    url(r'^api/v1/auth/example/$', apiv1s.ExampleView.as_view(), name='example'),
 ]
