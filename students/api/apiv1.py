@@ -3,7 +3,6 @@ from datetime import timedelta
 from django.contrib.auth import authenticate
 
 from rest_framework import status, views
-from rest_framework.response import Response
 
 from django.contrib.auth.models import User, Group
 
@@ -154,9 +153,8 @@ class StudentTodayScheduleView(views.APIView):
         )
         result = dict()
         for i, para in enumerate(classes_for_today):
-            result["para_%s"%i] = ParaSerializer(para).data
+            result["para_%s" % i] = ParaSerializer(para).data
         return Response(result, status=status.HTTP_200_OK)
-
 
 
 class StudentWeekScheduleView(views.APIView):
@@ -171,9 +169,9 @@ class StudentWeekScheduleView(views.APIView):
         usergroup = ProfileModel.objects.filter(user=user)[0].student_group
         todaysdate = datetime.date.today()
         weektype = get_weektype(todaysdate)
-        days=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
         result = dict()
-        for day in range(0,5):
+        for day in range(0, 5):
             day_obj = WorkingDay.objects.get(dayoftheweeknumber=day)
             classes = Para.objects.filter(
                 para_group=usergroup,
@@ -182,10 +180,26 @@ class StudentWeekScheduleView(views.APIView):
             )
             day_js = dict()
             for i, para in enumerate(classes):
-                day_js["para_%s"%i] = ParaSerializer(para).data
+                day_js["para_%s" % i] = ParaSerializer(para).data
 
-            result["%s"%days[day]]  = day_js
+            result["%s" % days[day]] = day_js
 
         return Response(result, status=status.HTTP_200_OK)
 
 
+class GroupStudentListView(views.APIView):
+    """
+    API endpoint to show all the users for the given group
+    """
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        requested_group = self.request.data["group"]
+
+        list_of_students = ProfileModel.objects.filter(student_group__title=requested_group)
+        result = dict()
+        for number, student in enumerate(list_of_students):
+            result[number] = ProfileSerializer(student).data
+
+        return Response(result, status=status.HTTP_200_OK)

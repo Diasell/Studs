@@ -141,6 +141,9 @@ class WorkingDaySerializer(serializers.ModelSerializer):
 
 
 class ParaSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Para Model
+    """
     discipline = serializers.CharField(
         source='para_subject.discipline',
         read_only=True)
