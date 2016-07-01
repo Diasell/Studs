@@ -6,10 +6,8 @@ from department.models import (
     FacultyModel,
     DepartmentModel,
     StudentGroupModel,
-    Disciplines,
     Para,
     ParaTime,
-    Rooms,
     WorkingDay
 )
 
@@ -34,17 +32,54 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    """
+    Serializer class for the Profile Model
+    """
+
+    username = serializers.CharField(
+        source='user.username',
+        read_only=True,
+    )
+    email = serializers.EmailField(
+        source='user.email',
+        read_only=True,
+    )
+    last_name = serializers.CharField(
+        source='user.last_name',
+        read_only=True
+    )
+    first_name = serializers.CharField(
+        source='user.first_name',
+        read_only=True
+    )
+    faculty = serializers.CharField(
+        source='faculty.title',
+        read_only=True,
+    )
+    department = serializers.CharField(
+        source='department.title',
+        read_only=True
+    )
+    student_group = serializers.CharField(
+        source='student_group.title'
+    )
+
 
     class Meta:
         model = ProfileModel
         fields = (
-            'user',
+            'username',
+            'email',
+            'last_name',
+            'first_name',
+            'middle_name',
             'is_student',
             'is_professor',
+            'faculty',
+            'department',
             'student_group',
-            'middle_name',
             'contact_phone',
+            'birthday',
             'photo',
             'started_date'
         )
