@@ -64,7 +64,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         source='student_group.title'
     )
 
-
     class Meta:
         model = ProfileModel
         fields = (
@@ -95,8 +94,6 @@ class StudentGroupSerializer(serializers.ModelSerializer):
         read_only=True
     )
     mentor = ProfileSerializer()
-
-
 
     class Meta:
         model = StudentGroupModel
