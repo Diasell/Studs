@@ -94,7 +94,6 @@ class GroupViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows students to be viewed or edited
-    Returns Token
     """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -139,18 +138,23 @@ class StudentTodayScheduleView(views.APIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request, format=None):
-        username = request.user
-        usergroup = ProfileModel.objects.filter(user=username)[0].student_group
+        user = request.user
+        print user
+        usergroup = ProfileModel.objects.filter(user=user)[0].student_group
         current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
         today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
 
         todaysdate = datetime.date.today()
         weektype = get_weektype(todaysdate)
 
-        classes_for_today = Para.objects.filter(para_group=usergroup, para_day=today, week_type=weektype)
+        classes_for_today = Para.objects.filter(
+            para_group=usergroup,
+            para_day=today,
+            week_type=weektype
+        )
+        print len(classes_for_today), classes_for_today
         result = dict()
-        for para in classes_for_today:
-                result.update(ParaSerializer(para).data)
-
+        for i, para in enumerate(classes_for_today):
+            result["para_%s"%i] = ParaSerializer(para).data
         return Response(result, status=status.HTTP_200_OK)
 

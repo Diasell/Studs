@@ -14,18 +14,6 @@ from department.models import (
 )
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'groups',
-            'first_name',
-            'last_name'
-        )
-
-
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -34,8 +22,19 @@ class GroupSerializer(serializers.ModelSerializer):
         )
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name'
+        )
+
+
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True, many=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = ProfileModel
@@ -124,7 +123,7 @@ class WorkingDaySerializer(serializers.ModelSerializer):
 class ParaSerializer(serializers.ModelSerializer):
     para_subject = DisciplineSerializer()
     para_room = RoomSerializer()
-    para_professor = UserSerializer(many=True)
+    para_professor = ProfileSerializer(read_only=True)
     para_number = ParaTimeSerializer()
     para_day = WorkingDaySerializer()
     # para_group = StudentGroupSerializer()
@@ -134,7 +133,7 @@ class ParaSerializer(serializers.ModelSerializer):
         fields = (
             'para_subject',
             'para_room',
-            # 'para_professor', # TODO: serialize.data fucks up here( FIX NEEDED)
+            'para_professor', # TODO: serialize.data fucks up here( FIX NEEDED)
             'para_number',
             'para_day',
             'para_group',
