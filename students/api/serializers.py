@@ -86,14 +86,27 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class StudentGroupSerializer(serializers.ModelSerializer):
-    leader = UserSerializer(read_only=True)
-    mentor = UserSerializer(read_only=True)
+    department = serializers.CharField(
+        source='department.title',
+        read_only=True,
+    )
+    leader = serializers.CharField(
+        source='leader.user.last_name',
+        read_only=True
+    )
+    mentor = ProfileSerializer()
+
+
 
     class Meta:
         model = StudentGroupModel
 
         fields = (
-            '',
+            'title',
+            'department',
+            'leader',
+            'mentor',
+            'date_started'
         )
 
 
