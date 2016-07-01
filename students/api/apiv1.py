@@ -172,10 +172,9 @@ class StudentWeekScheduleView(views.APIView):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
         result = dict()
         for day in range(0, 5):
-            day_obj = WorkingDay.objects.get(dayoftheweeknumber=day)
             classes = Para.objects.filter(
                 para_group=usergroup,
-                para_day=day_obj,
+                para_day__dayoftheweeknumber=day,
                 week_type=weektype
             )
             day_js = dict()
@@ -200,6 +199,6 @@ class GroupStudentListView(views.APIView):
         list_of_students = ProfileModel.objects.filter(student_group__title=requested_group)
         result = dict()
         for number, student in enumerate(list_of_students):
-            result[number] = ProfileSerializer(student).data
+            result[number+1] = ProfileSerializer(student).data
 
         return Response(result, status=status.HTTP_200_OK)
