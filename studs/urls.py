@@ -32,4 +32,5 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v1/auth/login/', apiv1s.LoginAPIView.as_view(), name='login'),
     url(r'^api/v1/get_user_schedule/$', apiv1s.StudentTodayScheduleView.as_view(), name='StudentTodaySchedule'),
+    url(r'^api/v1/get_user_weekly_schedule/$', apiv1s.StudentWeekScheduleView.as_view(), name='StudentWeeklySchedule'),
 ]

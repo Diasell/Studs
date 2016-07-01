@@ -41,6 +41,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'user',
             'is_student',
+            'is_professor',
             'student_group',
             'middle_name',
             'contact_phone',
@@ -86,22 +87,6 @@ class DepartmentSerializer(serializers.ModelSerializer):
         )
 
 
-class DisciplineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Disciplines
-        fields = (
-            'discipline',
-        )
-
-
-class RoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rooms
-        fields = (
-            'room',
-        )
-
-
 class ParaTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParaTime
@@ -121,19 +106,45 @@ class WorkingDaySerializer(serializers.ModelSerializer):
 
 
 class ParaSerializer(serializers.ModelSerializer):
-    para_subject = DisciplineSerializer()
-    para_room = RoomSerializer()
-    para_professor = ProfileSerializer(read_only=True)
-    para_number = ParaTimeSerializer()
-    para_day = WorkingDaySerializer()
-    # para_group = StudentGroupSerializer()
+    discipline = serializers.CharField(
+        source='para_subject.discipline',
+        read_only=True)
+    room = serializers.CharField(
+        source='para_room.room',
+        read_only=True
+    )
+    professors_lastname = serializers.CharField(
+        source='para_professor.user.last_name',
+        read_only=True
+    )
+    professors_firstname = serializers.CharField(
+        source='para_professor.user.first_name',
+        read_only=True,
+    )
+    professors_middlename = serializers.CharField(
+        source='para_professor.middle_name',
+        read_only=True,
+    )
+    para_number = serializers.CharField(
+        source='para_number.para_position',
+        read_only=True,
+    )
+    para_day = serializers.CharField(
+        source='para_day.dayoftheweek',
+        read_only=True
+    )
+    para_group = serializers.CharField(
+        source='para_group.title'
+    )
 
     class Meta:
         model = Para
         fields = (
-            'para_subject',
-            'para_room',
-            'para_professor', # TODO: serialize.data fucks up here( FIX NEEDED)
+            'discipline',
+            'room',
+            'professors_lastname',
+            'professors_firstname',
+            'professors_middlename',
             'para_number',
             'para_day',
             'para_group',

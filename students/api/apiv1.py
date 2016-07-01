@@ -152,9 +152,40 @@ class StudentTodayScheduleView(views.APIView):
             para_day=today,
             week_type=weektype
         )
-        print len(classes_for_today), classes_for_today
         result = dict()
         for i, para in enumerate(classes_for_today):
             result["para_%s"%i] = ParaSerializer(para).data
         return Response(result, status=status.HTTP_200_OK)
+
+
+
+class StudentWeekScheduleView(views.APIView):
+    """
+    API endpoint to get user schedule for current week
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        user = request.user
+        usergroup = ProfileModel.objects.filter(user=user)[0].student_group
+        todaysdate = datetime.date.today()
+        weektype = get_weektype(todaysdate)
+        days=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        result = dict()
+        for day in range(0,5):
+            day_obj = WorkingDay.objects.get(dayoftheweeknumber=day)
+            classes = Para.objects.filter(
+                para_group=usergroup,
+                para_day=day_obj,
+                week_type=weektype
+            )
+            day_js = dict()
+            for i, para in enumerate(classes):
+                day_js["para_%s"%i] = ParaSerializer(para).data
+
+            result["%s"%days[day]]  = day_js
+
+        return Response(result, status=status.HTTP_200_OK)
+
 
