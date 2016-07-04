@@ -18,12 +18,14 @@ from django.contrib import admin
 
 from rest_framework import routers
 from students.api import apiv1 as apiv1s
+from professors.api import  apiv1 as apiv1p
 
 
 router = routers.DefaultRouter()
 router.register(r'users', apiv1s.UserViewSet)
 router.register(r'groups', apiv1s.GroupViewSet)
 router.register(r'students', apiv1s.StudentViewSet)
+router.register(r'journal', apiv1p.JournalViewSet)
 
 
 urlpatterns = [
@@ -38,4 +40,5 @@ urlpatterns = [
     url(r'^api/v1/get_user_weekly_schedule/$', apiv1s.StudentWeekScheduleView.as_view(), name='StudentWeeklySchedule'),
     # API GET STUDENT GROUP LIST FOR GIVEN GROUP
     url(r'^api/v1/get_students_group_list/$', apiv1s.GroupStudentListView.as_view(), name='StudentsGroupList'),
+
 ]

@@ -94,3 +94,31 @@ class ProfileModel(models.Model):
             return u"Professor: %s, Department: %s" % (self.user, self.department)
         else:
             return u"Staff Member: %s, Faculty: %s" % (self.user, self.faculty)
+
+
+class StudentJournalModel(models.Model):
+
+    value = models.CharField(
+        max_length=55,
+        blank=True,
+        null=True,
+        verbose_name="Value",
+        default=''
+    )
+    date = models.DateField(
+        verbose_name="Date"
+    )
+    discipline = models.ForeignKey(
+        'department.Disciplines',
+        verbose_name="Discipline"
+    )
+    student = models.ForeignKey(
+        User,
+        verbose_name="Student"
+    )
+    is_module = models.BooleanField(
+        verbose_name="Module value"
+    )
+
+    def __unicode__(self):
+        return u"%s, %s, %s" % (self.date, self.discipline, self.student.get_full_name())
