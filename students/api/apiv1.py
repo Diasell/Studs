@@ -138,7 +138,6 @@ class StudentTodayScheduleView(views.APIView):
 
     def get(self, request, format=None):
         user = request.user
-        print user
         usergroup = ProfileModel.objects.filter(user=user)[0].student_group
         current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
         today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
@@ -196,7 +195,9 @@ class GroupStudentListView(views.APIView):
     def post(self, request, *args, **kwargs):
         requested_group = self.request.data["group"]
 
-        list_of_students = ProfileModel.objects.filter(student_group__title=requested_group)
+        list_of_students = ProfileModel.objects.filter(
+            student_group__title=requested_group
+        )
         result = dict()
         for number, student in enumerate(list_of_students):
             result[number+1] = ProfileSerializer(student).data

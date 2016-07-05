@@ -13,7 +13,7 @@ class FacultyModel(models.Model):
 
     title = models.CharField(
         max_length=256,
-        blank=False,
+        blank=True,
         verbose_name=u"Faculty Title",
     )
 
