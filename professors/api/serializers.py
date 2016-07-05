@@ -1,19 +1,26 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-
+from department.models import (
+    Disciplines,
+    ParaTime
+)
 from students.models import (
     StudentJournalModel
 )
 
 
 class StudentJournalSerializer(serializers.ModelSerializer):
-
-    discipline = serializers.CharField(
-        source='discipline.discipline'
+    student = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username'
     )
-    student = serializers.CharField(
-        source='student.username',
-        read_only=True,
+    discipline = serializers.SlugRelatedField(
+        queryset=Disciplines.objects.all(),
+        slug_field='discipline'
+    )
+    para_number = serializers.SlugRelatedField(
+        queryset=ParaTime.objects.all(),
+        slug_field='para_position'
     )
 
     class Meta:
@@ -22,6 +29,7 @@ class StudentJournalSerializer(serializers.ModelSerializer):
             'value',
             'date',
             'discipline',
+            'para_number',
             'student',
             'is_module'
         )

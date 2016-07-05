@@ -35,7 +35,7 @@ from students.models import (
 
 class JournalViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows students to be viewed or edited
+    API endpoint that allows professors edit students Journal
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)

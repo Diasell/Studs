@@ -112,6 +112,10 @@ class StudentJournalModel(models.Model):
         'department.Disciplines',
         verbose_name="Discipline"
     )
+    para_number = models.ForeignKey(
+        'department.ParaTime',
+        verbose_name="Class #"
+    )
     student = models.ForeignKey(
         User,
         verbose_name="Student"
