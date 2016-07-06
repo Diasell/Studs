@@ -26,6 +26,7 @@ class StudentJournalSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentJournalModel
         fields = (
+            'pk',
             'value',
             'date',
             'discipline',

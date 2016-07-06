@@ -41,4 +41,6 @@ urlpatterns = [
     # API GET STUDENT GROUP LIST FOR GIVEN GROUP
     url(r'^api/v1/get_students_group_list/$', apiv1s.GroupStudentListView.as_view(), name='StudentsGroupList'),
 
+    url(r'^api/v1/post_st_journal/$', apiv1p.StudentJournalInstanceView.as_view(), name='Journal'),
+
 ]
