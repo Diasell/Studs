@@ -77,14 +77,14 @@ class StudentJournalInstanceView(APIView):
                         is_module=is_module
                     )
                 except Exception:
-                    return Response({"Failed" : "Not valid data"},
-                        status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+                    return Response({"Failed": "Not valid data"},
+                                    status=status.HTTP_403_FORBIDDEN)
                 new_instance.save()
                 serialized = StudentJournalSerializer(new_instance)
                 return Response(serialized.data, status=status.HTTP_201_CREATED)
-            return Response({"Permissions" : "User has not enough permissions"},
+            return Response({"Permissions": "User has not enough permissions"},
                             status=status.HTTP_403_FORBIDDEN)
-        return Response({"Authorization" : "This is not an active user"},
+        return Response({"Authorization": "This is not an active user"},
                         status=status.HTTP_401_UNAUTHORIZED)
 
     def put(self, request, *args, **kwargs):
@@ -92,7 +92,7 @@ class StudentJournalInstanceView(APIView):
         Method that allows professor user to edit the StudentJournalModel instance
         """
         user = request.user
-        has_perm  = user.has_perm('students.change_studentjournalmodel')
+        has_perm = user.has_perm('students.change_studentjournalmodel')
         if user.is_active:
             if has_perm:
                 pk = self.request.data['pk']

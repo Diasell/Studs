@@ -25,12 +25,20 @@ from students.api.serializers import (
     ProfileSerializer,
     ParaSerializer
 )
+from professors.api.serializers import (
+    StudentJournalSerializer
+)
 
-from students.models import ProfileModel
+from students.models import (
+    ProfileModel,
+    StudentJournalModel
+)
 from department.models import (
     Para,
     WorkingDay,
-    StartSemester
+    StartSemester,
+    Disciplines,
+    ParaTime
 )
 
 
@@ -193,13 +201,63 @@ class GroupStudentListView(views.APIView):
     permission_classes = (IsAuthenticated, )
 
     def post(self, request, *args, **kwargs):
-        requested_group = self.request.data["group"]
+        user = request.user
+        if user.is_active:
+            requested_group = self.request.data["group"]
 
-        list_of_students = ProfileModel.objects.filter(
-            student_group__title=requested_group
-        )
-        result = dict()
-        for number, student in enumerate(list_of_students):
-            result[number+1] = ProfileSerializer(student).data
+            list_of_students = ProfileModel.objects.filter(
+                student_group__title=requested_group
+            )
+            result = dict()
+            for number, student in enumerate(list_of_students):
+                result[number+1] = ProfileSerializer(student).data
 
-        return Response(result, status=status.HTTP_200_OK)
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"UnAuth": "Current user is not active"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+
+class StudentClassJournalView(views.APIView):
+    """
+    API endpoint that allows user to get students results for given
+    student, discipline and semester
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_active:
+            start_date = self.request.data['start_date']
+            end_date = self.request.data['end_date']
+            student = self.request.data['student']
+            discipline = self.request.data['discipline']
+
+            journal = StudentJournalModel.objects.filter(
+                student=User.objects.get(username=student),
+                discipline=Disciplines.objects.get(discipline=discipline),
+                date__range=[start_date, end_date]
+            )
+            result = dict()
+            total_value = 0
+            missed_classes = 0
+            for number, item in enumerate(journal):
+                serialized_item = StudentJournalSerializer(item).data
+                result[number+1] = serialized_item
+                try:
+                    total_value += int(serialized_item['value'])
+                except Exception:
+                    missed_classes += 1
+            statistics = dict()
+            statistics["total_value"] = total_value
+            statistics["missed_classes"] = missed_classes
+            statistics["number_of_classes"] = len(journal)
+
+            result['stats'] = statistics
+
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"UnAuth": "Current user is not active"},
+                            status=status.HTTP_401_UNAUTHORIZED)
