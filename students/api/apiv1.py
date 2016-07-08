@@ -251,7 +251,7 @@ class GroupStudentListView(views.APIView):
 class StudentClassJournalView(views.APIView):
     """
     API endpoint that allows user to get students results for given
-    student, discipline and semester
+    student, discipline, range(default range is whole current semester)
     """
 
     authentication_classes = (TokenAuthentication,)
@@ -260,8 +260,22 @@ class StudentClassJournalView(views.APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
         if user.is_active:
-            start_date = self.request.data['start_date']
-            end_date = self.request.data['end_date']
+            todaysdate = datetime.date.today()
+
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
+            try:
+                start_date = self.request.data['start_date']
+            except Exception:
+                start_date = current_semester.semesterstart
+            try:
+                end_date = self.request.data['end_date']
+            except Exception:
+                end_date = current_semester.semesterend
+
+            print start_date, end_date
             student = self.request.data['student']
             discipline = self.request.data['discipline']
 
