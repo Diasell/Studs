@@ -291,3 +291,38 @@ class StudentClassJournalView(views.APIView):
         else:
             return Response({"UnAuth": "Current user is not active"},
                             status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ListOfDisciplinesView(APIView):
+    """
+    API endpoint that allows student user to check
+    what classes he/she has during current semester
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        if user.is_active:
+            todaysdate = datetime.date.today()
+
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
+            student_group = ProfileModel.objects.get(
+                user=user
+            ).student_group
+
+            disciplines = Para.objects.filter(
+                semester=current_semester,
+                para_group=student_group
+            ).values_list('para_subject__discipline', flat=True).distinct()
+            result = dict()
+            for number, discipline in enumerate(disciplines):
+                result[number + 1] = discipline
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"Authorization": "This is not an active user"},
+                            status=status.HTTP_401_UNAUTHORIZED)
