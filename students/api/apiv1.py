@@ -37,8 +37,7 @@ from department.models import (
     Para,
     WorkingDay,
     StartSemester,
-    Disciplines,
-    ParaTime
+    Disciplines
 )
 
 
@@ -137,7 +136,7 @@ class LoginAPIView(APIView):
             )
 
 
-class StudentTodayScheduleView(views.APIView):
+class TodayScheduleView(views.APIView):
     """
     API that returns JSON with schedule for user who is requesting
     """
@@ -146,22 +145,37 @@ class StudentTodayScheduleView(views.APIView):
 
     def get(self, request, format=None):
         user = request.user
-        usergroup = ProfileModel.objects.filter(user=user)[0].student_group
-        current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
-        today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
-
         todaysdate = datetime.date.today()
         weektype = get_weektype(todaysdate)
+        current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
+        today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
+        if user.is_active:
+            if ProfileModel.objects.get(user=user).is_student:
+                student_group = ProfileModel.objects.filter(user=user)[0].student_group
 
-        classes_for_today = Para.objects.filter(
-            para_group=usergroup,
-            para_day=today,
-            week_type=weektype
-        )
-        result = dict()
-        for i, para in enumerate(classes_for_today):
-            result["para_%s" % i] = ParaSerializer(para).data
-        return Response(result, status=status.HTTP_200_OK)
+                classes_for_today = Para.objects.filter(
+                    para_group=student_group,
+                    para_day=today,
+                    week_type=weektype
+                )
+                result = dict()
+                for i, para in enumerate(classes_for_today):
+                    result["para_%s" % i] = ParaSerializer(para).data
+                return Response(result, status=status.HTTP_200_OK)
+            elif ProfileModel.objects.get(user=user).is_professor:
+                classes_for_today = Para.objects.filter(
+                    para_professor=ProfileModel.objects.get(user=user),
+                    para_day=today,
+                    week_type=weektype
+                )
+                result = dict()
+                for i, para in enumerate(classes_for_today):
+                    result["para_%s" % i] = ParaSerializer(para).data
+                return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"UnAuth": "Current user is not active"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 class StudentWeekScheduleView(views.APIView):

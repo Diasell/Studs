@@ -35,7 +35,7 @@ urlpatterns = [
     # API LOGIN FOR USER TO GET TOKEN
     url(r'^api/v1/auth/login/', apiv1s.LoginAPIView.as_view(), name='login'),
     # API GET USER SCHEDULE FOR TODAY
-    url(r'^api/v1/get_user_schedule/$', apiv1s.StudentTodayScheduleView.as_view(), name='StudentTodaySchedule'),
+    url(r'^api/v1/get_user_schedule/$', apiv1s.TodayScheduleView.as_view(), name='TodaySchedule'),
     # API GET USER SCHEDULE FOR CURRENT WEEK
     url(r'^api/v1/get_user_weekly_schedule/$', apiv1s.StudentWeekScheduleView.as_view(), name='StudentWeeklySchedule'),
     # API GET STUDENT GROUP LIST FOR GIVEN GROUP
