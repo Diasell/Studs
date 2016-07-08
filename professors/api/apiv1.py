@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 from django.contrib.auth import authenticate
 
-from rest_framework import status, views
+from rest_framework import status
 
 from django.contrib.auth.models import User
 
@@ -27,7 +27,9 @@ from students.api.serializers import (
 
 from department.models import (
     Disciplines,
-    ParaTime
+    ParaTime,
+    Para,
+    StartSemester
 )
 from professors.api.serializers import (
     StudentJournalSerializer
@@ -36,16 +38,6 @@ from students.models import (
     ProfileModel,
     StudentJournalModel
 )
-
-
-class JournalViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows professors edit students Journal
-    """
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = StudentJournalModel.objects.all()
-    serializer_class = StudentJournalSerializer
 
 
 class StudentJournalInstanceView(APIView):
@@ -121,3 +113,33 @@ class StudentJournalInstanceView(APIView):
                             status=status.HTTP_403_FORBIDDEN)
         return Response({"Authorization": "This is not an active user"},
                         status=status.HTTP_401_UNAUTHORIZED)
+
+
+class GroupsListView(APIView):
+    """
+    API endpoint that allows professor user to get
+    the list of all the group that he is currently
+    teaching(current Semester)
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        if user.is_active:
+            todaysdate = datetime.date.today()
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
+            groups = Para.objects.filter(
+                semester=current_semester,
+                para_professor=ProfileModel.objects.get(user=user)
+            ).values_list('para_group__title', flat=True).distinct()
+            result = dict()
+            for number, group in enumerate(groups):
+                result[number+1] = group
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"Authorization": "This is not an active user"},
+                            status=status.HTTP_401_UNAUTHORIZED)

@@ -236,6 +236,12 @@ class Para(models.Model):
         default=True,
         verbose_name=u"Is week even"
     )
+    semester = models.ForeignKey(
+        'StartSemester',
+        blank=True,
+        verbose_name=u"Semester"
+    )
+
 
     def __unicode__(self):
         return u"%s %s" % (self.para_subject, self.para_room)

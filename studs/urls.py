@@ -25,7 +25,7 @@ router = routers.DefaultRouter()
 router.register(r'users', apiv1s.UserViewSet)
 router.register(r'groups', apiv1s.GroupViewSet)
 router.register(r'students', apiv1s.StudentViewSet)
-router.register(r'journal', apiv1p.JournalViewSet)
+
 
 
 urlpatterns = [
@@ -44,5 +44,7 @@ urlpatterns = [
     url(r'^api/v1/post_st_journal/$', apiv1p.StudentJournalInstanceView.as_view(), name='Journal'),
     # GET STUDENT DISCIPLINE RESULT BY DATA RANGE
     url(r'^api/v1/get_st_dsp_result/$', apiv1s.StudentClassJournalView.as_view(), name='Journal1'),
+    # GET GROUPS THAT PROFESSOR IS TEACHING IN THIS SEMESTER
+    url(r'^api/v1/get_teaching_groups/$', apiv1p.GroupsListView.as_view(), name='GroupsListForProfessor'),
 
 ]
