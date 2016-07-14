@@ -76,6 +76,13 @@ class Rooms(models.Model):
         verbose_name = u"Room"
         verbose_name_plural = u"Rooms"
 
+
+    faculty = models.ForeignKey(
+        FacultyModel,
+        blank=False,
+        verbose_name=u"Faculty"
+    )
+
     room = models.CharField(
         verbose_name=u"Room",
         blank=False,
