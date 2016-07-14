@@ -262,4 +262,4 @@ class StartSemester(models.Model):
     semesterend = models.DateField(verbose_name=u"Ends")
 
     def __unicode__(self):
-        return u"%s" % self.title
+        return u"%s, %s" % (self.title, self.semesterstart.year)

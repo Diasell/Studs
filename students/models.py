@@ -89,11 +89,11 @@ class ProfileModel(models.Model):
 
     def __unicode__(self):
         if self.is_student:
-            return u"Student: %s, Group: %s" % (self.user, self.student_group)
+            return u"Student: %s" % self.user.get_full_name()
         elif self.is_professor:
-            return u"Professor: %s, Department: %s" % (self.user, self.department)
+            return u"Professor: %s" % self.user.get_full_name()
         else:
-            return u"Staff Member: %s, Faculty: %s" % (self.user, self.faculty)
+            return u"Staff Member: %s" % self.user.get_full_name()
 
 
 class StudentJournalModel(models.Model):
