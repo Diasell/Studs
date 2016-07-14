@@ -193,6 +193,11 @@ class ParaTime(models.Model):
         verbose_name=u"Class order"
     )
 
+    faculty = models.ForeignKey(
+        FacultyModel,
+        verbose_name="Faculty where its held"
+    )
+
     def __unicode__(self):
         return u"%s: %s-%s" % (self.para_position, self.para_starttime, self.para_endtime)
 

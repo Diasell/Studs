@@ -59,6 +59,7 @@ class StudentJournalInstanceView(APIView):
                 para_number = self.request.data['para_number']
                 student = self.request.data['student']
                 is_module = self.request.data['is_module']
+
                 try:
                     new_instance = StudentJournalModel.objects.create(
                         value=value,
