@@ -11,6 +11,7 @@ from .models import (
     StartSemester
 )
 
+
 class ParaModelAdmin(admin.ModelAdmin):
     list_display = [
         "para_subject",
@@ -27,14 +28,21 @@ class ParaModelAdmin(admin.ModelAdmin):
         "semester"
     ]
 
+
 class RoomsModelAdmin(admin.ModelAdmin):
     list_display = ["faculty", "room"]
-    list_filter = ["faculty__title",]
-    search_fields = ["room",]
+    list_filter = ["faculty__title", ]
+    search_fields = ["room", ]
+
+
+class DepartmentModelAdmin(admin.ModelAdmin):
+    list_display = ["title", "faculty"]
+    list_filter = ["faculty__title", ]
+    search_fields = ["title"]
+
 
 # Register your models here.
-admin.site.register(DepartmentModel)
-admin.site.register(FacultyModel)
+admin.site.register(DepartmentModel, DepartmentModelAdmin)
 admin.site.register(StudentGroupModel)
 admin.site.register(Disciplines)
 admin.site.register(Rooms, RoomsModelAdmin)
