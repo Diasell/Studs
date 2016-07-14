@@ -27,6 +27,11 @@ class ParaModelAdmin(admin.ModelAdmin):
         "week_type",
         "semester"
     ]
+    search_fields = [
+        "para_subject__discipline",
+        "para_professor__user__first_name",
+        "para_professor__user__last_name"
+    ]
 
 
 class RoomsModelAdmin(admin.ModelAdmin):
