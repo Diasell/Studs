@@ -19,13 +19,14 @@ from django.contrib import admin
 from rest_framework import routers
 from students.api import apiv1 as apiv1s
 from professors.api import  apiv1 as apiv1p
+from blog.api import apiv1 as apiv1b
 
 
 router = routers.DefaultRouter()
 router.register(r'users', apiv1s.UserViewSet)
 router.register(r'groups', apiv1s.GroupViewSet)
 router.register(r'students', apiv1s.StudentViewSet)
-
+router.register(r'blog', apiv1b.BlogViewSet)
 
 
 urlpatterns = [

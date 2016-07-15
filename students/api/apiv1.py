@@ -1,3 +1,4 @@
+import logging
 import datetime
 from datetime import timedelta
 from django.contrib.auth import authenticate
@@ -39,6 +40,7 @@ from department.models import (
     StartSemester,
     Disciplines
 )
+logger = logging.getLogger(__name__)
 
 
 def ifweekiseven(todaysdata, datastart):
@@ -123,11 +125,13 @@ class LoginAPIView(APIView):
         if account is not None:
             if account.is_active:
                 token = Token.objects.get_or_create(user=account)[0]
+                logger.info("User logged in successfully", username)
                 return Response(
                     {'Authorization': "Token %s" % token},
                     status=status.HTTP_200_OK
                 )
         else:
+            logger.error("ERRORRRRRRRRRRRRRRRRR!")
             return Response({
                 'status': 'Unauthorized',
                 'message': 'Username/password combination is invalid'
