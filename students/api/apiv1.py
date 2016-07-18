@@ -120,7 +120,6 @@ class LoginAPIView(APIView):
 
         account = authenticate(username=username, password=password)
 
-
         if account is not None:
             if account.is_active:
                 token = Token.objects.get_or_create(user=account)[0]
@@ -144,6 +143,65 @@ class LoginAPIView(APIView):
                 'message': 'Username/password combination is invalid'
                 },
                 status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+class RegisterAPIView(APIView):
+    """
+    API that allows users to register a new account
+    """
+    authentication_classes = ('',)
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        username = request.data["username"]
+        password = request.data["password"]
+        first_name = request.data['first_name']
+        last_name = request.data['last_name']
+        c_password = request.data['confirm_password']
+        group = request.data['group']
+        faculty = request.data['faculty']
+        email = request.data['email']
+        photo = request.data['file']
+
+        if User.objects.get(username=username):
+            return Response({
+                'Failed': "username is taken"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if User.objects.get(email=email):
+            return Response({
+                'Failed': "email is taken"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if password != c_password:
+            return Response({
+                'Failed': "passwords doesn't match"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+
+        serialized = ParaSerializer(data=request.data).is_valid()
+        if serialized:
+                new_instance = User.objects.create(
+                    username = username,
+                    password=password,
+                    first_name=first_name,
+                    las_name=last_name,
+                    email=email
+                )
+                if new_instance.full_clean():
+                        print new_instance.full_clean()
+                return Response(
+                    "lol",
+                    status=status.HTTP_201_CREATED
+                )
+        else:
+            return Response({
+                'status': 'Unauthorized',
+                'message': 'Provided data is invalid'
+                },
+                status=status.HTTP_403_FORBIDDEN
             )
 
 
