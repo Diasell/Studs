@@ -13,7 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from .settings import MEDIA_ROOT, DEBUG
+from django.conf.urls import url, include, patterns
 from django.contrib import admin
 
 from rest_framework import routers
@@ -51,3 +52,9 @@ urlpatterns = [
     url(r'^api/v1/get_students_disciplines/$', apiv1s.ListOfDisciplinesView.as_view(), name='ListOfStDisciplines'),
 
 ]
+
+if DEBUG:
+    # serve files from media folder
+    urlpatterns += patterns('',
+        url(r'^media/(?P<path>.*)$','django.views.static.serve',
+            {'document_root': MEDIA_ROOT}))
