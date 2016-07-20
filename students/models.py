@@ -31,11 +31,13 @@ class ProfileModel(models.Model):
     is_professor = models.BooleanField(
         verbose_name=u"Professor",
         default=False,
+        blank=True
     )
 
     is_staff = models.BooleanField(
         verbose_name="Staff Member",
-        default=False
+        default=False,
+        blank=True
     )
 
     started_date = models.DateField(

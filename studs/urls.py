@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # API LOGIN FOR USER TO GET TOKEN
     url(r'^api/v1/auth/login/', apiv1s.LoginAPIView.as_view(), name='login'),
+    # API REGISTER NEW USER
+    url(r'^api/v1/auth/register/', apiv1s.RegisterAPIView.as_view(), name='register'),
     # API GET USER SCHEDULE FOR TODAY
     url(r'^api/v1/get_user_schedule/$', apiv1s.TodayScheduleView.as_view(), name='TodaySchedule'),
     # API GET USER SCHEDULE FOR CURRENT WEEK

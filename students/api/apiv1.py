@@ -1,6 +1,7 @@
 import datetime
 from datetime import timedelta
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 
 from rest_framework import status, views
 
@@ -37,7 +38,9 @@ from department.models import (
     Para,
     WorkingDay,
     StartSemester,
-    Disciplines
+    Disciplines,
+    StudentGroupModel,
+    FacultyModel
 )
 
 
@@ -150,7 +153,6 @@ class RegisterAPIView(APIView):
     """
     API that allows users to register a new account
     """
-    authentication_classes = ('',)
     permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
@@ -162,16 +164,15 @@ class RegisterAPIView(APIView):
         group = request.data['group']
         faculty = request.data['faculty']
         email = request.data['email']
-        photo = request.data['file']
 
-        if User.objects.get(username=username):
+        if User.objects.filter(username=username):
             return Response({
-                'Failed': "username is taken"},
+                'Failed': "username is already taken"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        if User.objects.get(email=email):
+        if User.objects.filter(email=email):
             return Response({
-                'Failed': "email is taken"},
+                'Failed': "email is already taken"},
                 status=status.HTTP_403_FORBIDDEN
             )
         if password != c_password:
@@ -180,20 +181,41 @@ class RegisterAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-
-        serialized = ParaSerializer(data=request.data).is_valid()
+        serialized = UserSerializer(data=request.data).is_valid()
         if serialized:
-                new_instance = User.objects.create(
+                new_user = User(
                     username = username,
                     password=password,
                     first_name=first_name,
-                    las_name=last_name,
+                    last_name=last_name,
                     email=email
                 )
-                if new_instance.full_clean():
-                        print new_instance.full_clean()
+                user_group = StudentGroupModel.objects.get(title=group)
+                new_user_profile = ProfileModel(
+                    user=new_user,
+                    is_student=True,
+                    student_group=user_group,
+                    faculty=FacultyModel.objects.get(title=faculty),
+                    started_date=user_group.date_started
+                )
+                new_user.save()
+                new_user_profile.save()
+
+
+                token = Token.objects.get_or_create(user=new_user)[0]
+                print token
+                user = new_user
+                profile = new_user_profile
+
+                response = dict()
+                response['Authorization'] = "Token %s" % token
+                response['full_name'] = user.get_full_name()
+                response['email'] = user.email
+                response['group'] = profile.student_group.title
+                response['faculty'] = profile.faculty.title
+
                 return Response(
-                    "lol",
+                    response,
                     status=status.HTTP_201_CREATED
                 )
         else:
