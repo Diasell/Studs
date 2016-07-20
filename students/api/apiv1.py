@@ -4,7 +4,10 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
 from rest_framework import status, views
-
+from rest_framework.parsers import (
+    MultiPartParser,
+    JSONParser
+)
 from django.contrib.auth.models import User, Group
 
 
@@ -128,6 +131,7 @@ class LoginAPIView(APIView):
                 token = Token.objects.get_or_create(user=account)[0]
                 user = User.objects.get(username=username)
                 profile = ProfileModel.objects.get(user=user)
+
                 response = dict()
                 response['Authorization'] = "Token %s" % token
                 response['full_name'] = user.get_full_name()
@@ -136,6 +140,7 @@ class LoginAPIView(APIView):
                 response['photo'] = photo
                 response['group'] = profile.student_group.title
                 response['faculty'] = profile.faculty.title
+
                 return Response(
                     response,
                     status=status.HTTP_200_OK
@@ -154,8 +159,10 @@ class RegisterAPIView(APIView):
     API that allows users to register a new account
     """
     permission_classes = (AllowAny,)
+    parser_classes = (MultiPartParser, JSONParser)
 
     def post(self, request, format=None):
+        # getting data from user request
         username = request.data["username"]
         password = request.data["password"]
         first_name = request.data['first_name']
@@ -164,43 +171,45 @@ class RegisterAPIView(APIView):
         group = request.data['group']
         faculty = request.data['faculty']
         email = request.data['email']
+        photo = request.FILES['file']
 
+        errors = dict()
+        # validating the uploaded file
+        if photo:
+            if photo.size > (2048 * 1024):
+                errors['photo'] = u"Size of the image shouldn't be greater than 2Mb"
+            elif not ('image' in photo.content_type):
+                errors['photo'] = u"File type should be an image"
+
+        # basic validation for user details
         if User.objects.filter(username=username):
-            return Response({
-                'Failed': "username is already taken"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            errors['username'] = u"username is already taken"
         if User.objects.filter(email=email):
-            return Response({
-                'Failed': "email is already taken"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            errors['email'] = u"email is already taken"
         if password != c_password:
-            return Response({
-                'Failed': "passwords doesn't match"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            errors['password'] = u"passwords doesn't match"
+
+        if errors:
+            return Response(errors,status=status.HTTP_403_FORBIDDEN)
 
         serialized = UserSerializer(data=request.data).is_valid()
         if serialized:
-                new_user = User(
-                    username = username,
+                new_user = User.objects.create_user(
+                    username=username,
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
                     email=email
                 )
                 user_group = StudentGroupModel.objects.get(title=group)
-                new_user_profile = ProfileModel(
+                new_user_profile = ProfileModel.objects.create(
                     user=new_user,
                     is_student=True,
                     student_group=user_group,
                     faculty=FacultyModel.objects.get(title=faculty),
-                    started_date=user_group.date_started
+                    started_date=user_group.date_started,
+                    photo=photo
                 )
-                new_user.save()
-                new_user_profile.save()
-
 
                 token = Token.objects.get_or_create(user=new_user)[0]
                 print token
