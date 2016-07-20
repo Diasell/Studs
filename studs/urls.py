@@ -52,6 +52,8 @@ urlpatterns = [
     url(r'^api/v1/get_teaching_groups/$', apiv1p.GroupsListView.as_view(), name='GroupsListForProfessor'),
     # GET DISCIPLINES THAT STUDENT USER IS VISITING IN THIS SEMESTER
     url(r'^api/v1/get_students_disciplines/$', apiv1s.ListOfDisciplinesView.as_view(), name='ListOfStDisciplines'),
+    # GET FACULTY STRUCTURE
+    url(r'^api/v1/get_faculties_structure/', apiv1s.ListFacultyView.as_view(), name='faculty-structure'),
 
 ]
 
