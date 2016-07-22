@@ -195,7 +195,7 @@ class ParaTime(models.Model):
 
     faculty = models.ForeignKey(
         FacultyModel,
-        verbose_name="Faculty where its held"
+        verbose_name="Faculty "
     )
 
     def __unicode__(self):

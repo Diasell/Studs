@@ -184,6 +184,14 @@ class ParaSerializer(serializers.ModelSerializer):
     para_group = serializers.CharField(
         source='para_group.title'
     )
+    start_time = serializers.DateTimeField(
+        source='para_number.para_starttime',
+        read_only=True,
+    )
+    end_time = serializers.DateTimeField(
+        source='para_number.para_endtime',
+        read_only=True,
+    )
 
     class Meta:
         model = Para
@@ -194,6 +202,8 @@ class ParaSerializer(serializers.ModelSerializer):
             'professors_firstname',
             'professors_middlename',
             'para_number',
+            'start_time',
+            'end_time',
             'para_day',
             'para_group',
             'week_type'

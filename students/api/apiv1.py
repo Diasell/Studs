@@ -1,7 +1,6 @@
 import datetime
 from datetime import timedelta
 from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
 
 from rest_framework import status, views
 from rest_framework.parsers import (
@@ -107,7 +106,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows students to be viewed or edited
     """
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = ProfileModel.objects.filter(is_student=True)
     serializer_class = ProfileSerializer
