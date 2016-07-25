@@ -118,6 +118,7 @@ class LoginAPIView(APIView):
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (AllowAny,)
+    parser_classes = (JSONParser,)
 
     def post(self, request, format=None):
         username = request.data["username"]
