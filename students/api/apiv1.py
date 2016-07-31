@@ -40,7 +40,8 @@ from department.models import (
     StartSemester,
     Disciplines,
     StudentGroupModel,
-    FacultyModel
+    FacultyModel,
+    DepartmentModel
 )
 
 
@@ -431,3 +432,26 @@ class ListOfDisciplinesView(APIView):
         else:
             return Response({"Authorization": "This is not an active user"},
                             status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ListFacultyView(APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, request):
+        response = dict()
+        fac_list = FacultyModel.objects.all()
+        for faculty in fac_list:
+            deps = dict()
+            dep_list = DepartmentModel.objects.filter(
+                faculty=faculty
+            )
+            for department in dep_list:
+                groups_list = StudentGroupModel.objects.filter(
+                    department=department
+                )
+                groups = []
+                for group in groups_list:
+                    groups.append(group.title)
+                deps[department.title] = groups
+            response[faculty.title] = deps
+        return Response(response, status=status.HTTP_200_OK)
