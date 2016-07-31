@@ -204,7 +204,6 @@ class RegisterAPIView(APIView):
 
 
                 token = Token.objects.get_or_create(user=new_user)[0]
-                print token
                 user = new_user
                 profile = new_user_profile
 
@@ -367,7 +366,6 @@ class StudentClassJournalView(views.APIView):
             except Exception:
                 end_date = current_semester.semesterend
 
-            print start_date, end_date
             student = self.request.data['student']
             discipline = self.request.data['discipline']
 
