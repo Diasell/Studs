@@ -1,12 +1,10 @@
 import datetime
 from datetime import timedelta
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 
 from rest_framework import status, views
-from rest_framework.parsers import (
-    MultiPartParser,
-    JSONParser
-)
+
 from django.contrib.auth.models import User, Group
 
 
@@ -42,8 +40,7 @@ from department.models import (
     StartSemester,
     Disciplines,
     StudentGroupModel,
-    FacultyModel,
-    DepartmentModel
+    FacultyModel
 )
 
 
@@ -113,7 +110,6 @@ class StudentViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
 
 
-
 class LoginAPIView(APIView):
     """
     API that allows users to get a Token while authorization
@@ -132,7 +128,6 @@ class LoginAPIView(APIView):
                 token = Token.objects.get_or_create(user=account)[0]
                 user = User.objects.get(username=username)
                 profile = ProfileModel.objects.get(user=user)
-
                 response = dict()
                 response['Authorization'] = "Token %s" % token
                 response['full_name'] = user.get_full_name()
@@ -141,7 +136,6 @@ class LoginAPIView(APIView):
                 response['photo'] = photo
                 response['group'] = profile.student_group.title
                 response['faculty'] = profile.faculty.title
-
                 return Response(
                     response,
                     status=status.HTTP_200_OK
@@ -160,10 +154,8 @@ class RegisterAPIView(APIView):
     API that allows users to register a new account
     """
     permission_classes = (AllowAny,)
-    parser_classes = (MultiPartParser, JSONParser)
 
     def post(self, request, format=None):
-        # getting data from user request
         username = request.data["username"]
         password = request.data["password"]
         first_name = request.data['first_name']
@@ -172,47 +164,46 @@ class RegisterAPIView(APIView):
         group = request.data['group']
         faculty = request.data['faculty']
         email = request.data['email']
-        photo = request.FILES['file']
 
-        errors = dict()
-        # validating the uploaded file
-        if photo:
-            if photo.size > (2048 * 1024):
-                errors['photo'] = u"Size of the image shouldn't be greater than 2Mb"
-            elif not ('image' in photo.content_type):
-                errors['photo'] = u"File type should be an image"
-
-        # basic validation for user details
         if User.objects.filter(username=username):
-            errors['username'] = u"username is already taken"
+            return Response({
+                'Failed': "username is already taken"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         if User.objects.filter(email=email):
-            errors['email'] = u"email is already taken"
+            return Response({
+                'Failed': "email is already taken"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         if password != c_password:
-            errors['password'] = u"passwords doesn't match"
-
-        if errors:
-            return Response(errors, status=status.HTTP_403_FORBIDDEN)
+            return Response({
+                'Failed': "passwords doesn't match"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         serialized = UserSerializer(data=request.data).is_valid()
         if serialized:
-                new_user = User.objects.create_user(
-                    username=username,
+                new_user = User(
+                    username = username,
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
                     email=email
                 )
                 user_group = StudentGroupModel.objects.get(title=group)
-                new_user_profile = ProfileModel.objects.create(
+                new_user_profile = ProfileModel(
                     user=new_user,
                     is_student=True,
                     student_group=user_group,
                     faculty=FacultyModel.objects.get(title=faculty),
-                    started_date=user_group.date_started,
-                    photo=photo
+                    started_date=user_group.date_started
                 )
+                new_user.save()
+                new_user_profile.save()
+
 
                 token = Token.objects.get_or_create(user=new_user)[0]
+                print token
                 user = new_user
                 profile = new_user_profile
 
@@ -375,6 +366,7 @@ class StudentClassJournalView(views.APIView):
             except Exception:
                 end_date = current_semester.semesterend
 
+            print start_date, end_date
             student = self.request.data['student']
             discipline = self.request.data['discipline']
 
@@ -439,27 +431,3 @@ class ListOfDisciplinesView(APIView):
         else:
             return Response({"Authorization": "This is not an active user"},
                             status=status.HTTP_401_UNAUTHORIZED)
-
-
-class ListFacultyView(APIView):
-    permission_classes = (AllowAny, )
-
-    def get(self, request):
-        response = dict()
-        fac_list = FacultyModel.objects.all()
-        for faculty in fac_list:
-            deps = dict()
-            dep_list = DepartmentModel.objects.filter(
-                faculty=faculty
-            )
-            for department in dep_list:
-                groups_list = StudentGroupModel.objects.filter(
-                    department=department
-                )
-                groups = []
-                for group in groups_list:
-                    groups.append(group.title)
-                deps[department.title] = groups
-            response[faculty.title] = deps
-        return Response(response, status=status.HTTP_200_OK)
-

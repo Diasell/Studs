@@ -18,7 +18,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 class ProfileModel(models.Model):
     """
-    Students model
+    Students Profile model
     """
 
     user = models.OneToOneField(User, primary_key=True)
