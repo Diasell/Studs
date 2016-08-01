@@ -439,7 +439,7 @@ class ListFacultyView(APIView):
         response = dict()
         fac_list = FacultyModel.objects.all()
         for faculty in fac_list:
-            deps = dict()
+            groups = []
             dep_list = DepartmentModel.objects.filter(
                 faculty=faculty
             )
@@ -447,9 +447,8 @@ class ListFacultyView(APIView):
                 groups_list = StudentGroupModel.objects.filter(
                     department=department
                 )
-                groups = []
                 for group in groups_list:
                     groups.append(group.title)
-                deps[department.title] = groups
-            response[faculty.title] = deps
+        response[faculty.title] = groups
+
         return Response(response, status=status.HTTP_200_OK)
