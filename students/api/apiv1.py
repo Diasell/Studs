@@ -162,7 +162,8 @@ class RegisterAPIView(APIView):
         first_name = request.data['first_name']
         last_name = request.data['last_name']
         c_password = request.data['confirm_password']
-        group = request.data['group']
+        group_title = request.data['group_title']
+        group_started = request.data['group_started']
         faculty = request.data['faculty']
         email = request.data['email']
 
@@ -184,14 +185,19 @@ class RegisterAPIView(APIView):
 
         serialized = UserSerializer(data=request.data).is_valid()
         if serialized:
-                new_user = User(
+                new_user = User.objects.create_user(
                     username = username,
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
                     email=email
                 )
-                user_group = StudentGroupModel.objects.get(title=group)
+                new_user.save()
+
+                user_group = StudentGroupModel.objects.get(
+                    title=group_title,
+                    date_started=group_started
+                )
                 new_user_profile = ProfileModel(
                     user=new_user,
                     is_student=True,
@@ -199,7 +205,7 @@ class RegisterAPIView(APIView):
                     faculty=FacultyModel.objects.get(title=faculty),
                     started_date=user_group.date_started
                 )
-                new_user.save()
+
                 new_user_profile.save()
 
 
@@ -448,7 +454,7 @@ class ListFacultyView(APIView):
                     department=department
                 )
                 for group in groups_list:
-                    groups.append(group.title)
-        response[faculty.title] = groups
+                    groups.append((group.title, group.date_started))
+            response[faculty.title] = groups
 
         return Response(response, status=status.HTTP_200_OK)
