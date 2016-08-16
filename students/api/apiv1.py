@@ -179,6 +179,11 @@ class RegisterAPIView(APIView):
         email = request.data['email']
         photo = request.FILES['photo']
 
+        faculty = FacultyModel.objects.filter(title=faculty)[0]
+        user_group = StudentGroupModel.objects.filter(
+            title=group_title,
+            date_started=group_started
+        )[0]
         try:
             is_valid_image(photo)
         except Exception:
@@ -201,6 +206,16 @@ class RegisterAPIView(APIView):
                 'Failed': "passwords doesn't match"},
                 status=status.HTTP_403_FORBIDDEN
             )
+        if not faculty:
+            return Response({
+                'Failed': "user faculty is not valid"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if not user_group:
+            return Response({
+                'Failed': "user group is not valid"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         serialized = UserSerializer(data=request.data).is_valid()
         if serialized:
@@ -213,16 +228,11 @@ class RegisterAPIView(APIView):
                 )
                 new_user.save()
 
-                user_group = StudentGroupModel.objects.get(
-                    title=group_title,
-                    date_started=group_started
-                )
-
                 new_user_profile = ProfileModel(
                     user=new_user,
                     is_student=True,
                     student_group=user_group,
-                    faculty=FacultyModel.objects.get(title=faculty),
+                    faculty=faculty,
                     started_date=user_group.date_started,
                     birthday=birthday,
                     photo=photo
