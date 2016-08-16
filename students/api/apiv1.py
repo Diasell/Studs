@@ -179,11 +179,11 @@ class RegisterAPIView(APIView):
         email = request.data['email']
         photo = request.FILES['photo']
 
-        faculty = FacultyModel.objects.filter(title=faculty)[0]
+        faculty = FacultyModel.objects.filter(title=faculty)
         user_group = StudentGroupModel.objects.filter(
             title=group_title,
             date_started=group_started
-        )[0]
+        )
         try:
             is_valid_image(photo)
         except Exception:
@@ -231,9 +231,9 @@ class RegisterAPIView(APIView):
                 new_user_profile = ProfileModel(
                     user=new_user,
                     is_student=True,
-                    student_group=user_group,
-                    faculty=faculty,
-                    started_date=user_group.date_started,
+                    student_group=user_group[0],
+                    faculty=faculty[0],
+                    started_date=group_started,
                     birthday=birthday,
                     photo=photo
                 )
