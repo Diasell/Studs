@@ -72,12 +72,10 @@ def get_weektype(date):
     :return: True/False/None
     """
     semesters = StartSemester.objects.all()
-    approxsemesterlength = 6 * 31
     for semester in semesters:
-        difference = (date - semester.semesterstart).days
-        if semester.semesterstart <= date and difference < approxsemesterlength:
-            startsemesterdate = semester.semesterstart
-            return ifweekiseven(date, startsemesterdate)
+        if semester.semesterstart <= date \
+                and semester.semesterend >=date:
+            return ifweekiseven(date, semester.semesterstart)
     return None
 
 
@@ -290,18 +288,22 @@ class WeeklyScheduleView(views.APIView):
         if user.is_active:
             if ProfileModel.objects.get(user=user).is_student:
                 student_group = ProfileModel.objects.get(user=user).student_group
+
                 for day in range(0, 5):
                     classes = Para.objects.filter(
                         para_group=student_group,
                         para_day__dayoftheweeknumber=day,
                         week_type=weektype
                     )
+
                     day_js = dict()
                     for i, para in enumerate(classes):
                         day_js["para_%s" % i] = ParaSerializer(para).data
 
                     result["%s" % days[day]] = day_js
+
                 return Response(result, status=status.HTTP_200_OK)
+
             elif ProfileModel.objects.get(user=user).is_professor:
                 for day in range(0, 5):
                     classes = Para.objects.filter(
@@ -309,6 +311,7 @@ class WeeklyScheduleView(views.APIView):
                         para_day__dayoftheweeknumber=day,
                         week_type=weektype
                     )
+
                     day_js = dict()
                     for i, para in enumerate(classes):
                         day_js["para_%s" % i] = ParaSerializer(para).data
@@ -338,7 +341,6 @@ class GroupStudentListView(views.APIView):
             result = dict()
             for number, student in enumerate(list_of_students):
                 result[number+1] = ProfileSerializer(student).data
-
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({"UnAuth": "Current user is not active"},
