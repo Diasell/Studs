@@ -1,4 +1,5 @@
 import datetime
+from PIL import Image
 from datetime import timedelta
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
@@ -14,6 +15,7 @@ from rest_framework.authentication import (
 
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -77,6 +79,15 @@ def get_weektype(date):
                 and semester.semesterend >=date:
             return ifweekiseven(date, semester.semesterstart)
     return None
+
+
+def is_valid_image(file):
+    "uses Pillow to check whether file is an image"
+    image = Image.open(file)
+    valid_formats = ['jpeg', 'jpg', 'png']
+    if image.format.lower() in valid_formats:
+        return True
+    return False
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -153,6 +164,7 @@ class RegisterAPIView(APIView):
     API that allows users to register a new account
     """
     permission_classes = (AllowAny,)
+    parser_classes = (MultiPartParser,)
 
     def post(self, request, format=None):
         username = request.data["username"]
@@ -160,11 +172,20 @@ class RegisterAPIView(APIView):
         first_name = request.data['first_name']
         last_name = request.data['last_name']
         c_password = request.data['confirm_password']
+        birthday = request.data['birthday']
         group_title = request.data['group_title']
         group_started = request.data['group_started']
         faculty = request.data['faculty']
         email = request.data['email']
+        photo = request.FILES['photo']
 
+        try:
+            is_valid_image(photo)
+        except Exception:
+            return Response({
+                'Failed': "attachment format is not supported"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         if User.objects.filter(username=username):
             return Response({
                 'Failed': "username is already taken"},
@@ -196,27 +217,26 @@ class RegisterAPIView(APIView):
                     title=group_title,
                     date_started=group_started
                 )
+
                 new_user_profile = ProfileModel(
                     user=new_user,
                     is_student=True,
                     student_group=user_group,
                     faculty=FacultyModel.objects.get(title=faculty),
-                    started_date=user_group.date_started
+                    started_date=user_group.date_started,
+                    birthday=birthday,
+                    photo=photo
                 )
-
                 new_user_profile.save()
 
-
                 token = Token.objects.get_or_create(user=new_user)[0]
-                user = new_user
-                profile = new_user_profile
 
                 response = dict()
                 response['Authorization'] = "Token %s" % token
-                response['full_name'] = user.get_full_name()
-                response['email'] = user.email
-                response['group'] = profile.student_group.title
-                response['faculty'] = profile.faculty.title
+                response['full_name'] = new_user.get_full_name()
+                response['email'] = new_user.email
+                response['group'] = new_user_profile.student_group.title
+                response['faculty'] = new_user_profile.faculty.title
 
                 return Response(
                     response,
