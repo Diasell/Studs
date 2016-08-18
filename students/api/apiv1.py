@@ -8,7 +8,6 @@ from rest_framework import status, views
 
 from django.contrib.auth.models import User, Group
 
-
 from rest_framework.authentication import (
     TokenAuthentication,
     BasicAuthentication,
@@ -167,6 +166,7 @@ class RegisterAPIView(APIView):
     parser_classes = (MultiPartParser,)
 
     def post(self, request, format=None):
+        # obligatory fields
         username = request.data["username"]
         password = request.data["password"]
         first_name = request.data['first_name']
@@ -184,6 +184,7 @@ class RegisterAPIView(APIView):
             title=group_title,
             date_started=group_started
         )
+        # validation user input
         try:
             is_valid_image(photo)
         except Exception:
@@ -216,8 +217,8 @@ class RegisterAPIView(APIView):
                 'Failed': "user group is not valid"},
                 status=status.HTTP_403_FORBIDDEN
             )
-
         serialized = UserSerializer(data=request.data).is_valid()
+
         if serialized:
                 new_user = User.objects.create_user(
                     username = username,

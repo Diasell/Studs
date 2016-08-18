@@ -16,6 +16,11 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'user_{0}/{1}'.format(instance.user.id, filename)
+
+
 class ProfileModel(models.Model):
     """
     Students Profile model
@@ -87,6 +92,7 @@ class ProfileModel(models.Model):
     photo = models.ImageField(
         blank=True,
         verbose_name=u"Photo",
+        upload_to=user_directory_path,
         null=True)
 
     def __unicode__(self):
