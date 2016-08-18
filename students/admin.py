@@ -20,7 +20,18 @@ class ProfileModelInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileModelInline,)
 
+
+class StudentJournalModelAdmin(admin.ModelAdmin):
+    list_display = ['__unicode__', 'discipline', 'get_faculty', 'date']
+    list_filter = ['date', 'is_module', 'discipline']
+    search_fields = ['student__first_name',
+                     'student__last_name',]
+    def get_faculty(self, obj):
+        return obj.para_number.faculty
+    get_faculty.short_description = "Faculty"
+
+
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-admin.site.register(StudentJournalModel)
+admin.site.register(StudentJournalModel, StudentJournalModelAdmin)

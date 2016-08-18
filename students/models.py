@@ -133,4 +133,4 @@ class StudentJournalModel(models.Model):
     )
 
     def __unicode__(self):
-        return u"%s, %s, %s" % (self.date, self.discipline, self.student.get_full_name())
+        return u"%s" % self.student.get_full_name()
