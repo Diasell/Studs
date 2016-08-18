@@ -50,11 +50,30 @@ class ParaTimeModelAdmin(admin.ModelAdmin):
     search_fields = ["para_position"]
 
 
+class DisciplinesModelAdmin(admin.ModelAdmin):
+    list_display = ["__unicode__"]
+    search_fields = ["discipline"]
+
+
+class StartSemesterModelAdmin(admin.ModelAdmin):
+    list_display = ["__unicode__", "semesterstart", 'semesterend']
+    list_filter = ["semesterstart", 'semesterend', 'title']
+
+
+class StudentGroupModelAdmin(admin.ModelAdmin):
+    list_display = ["__unicode__", "get_faculty", "department"]
+    list_filter = ["department__faculty", "department"]
+    search_fields = ["title"]
+
+    def get_faculty(self, obj):
+        return obj.department.faculty.title
+    get_faculty.short_description = 'Faculty'
+
 # Register your models here.
 admin.site.register(DepartmentModel, DepartmentModelAdmin)
-admin.site.register(StudentGroupModel)
-admin.site.register(Disciplines)
+admin.site.register(StudentGroupModel, StudentGroupModelAdmin)
+admin.site.register(Disciplines, DisciplinesModelAdmin)
 admin.site.register(Rooms, RoomsModelAdmin)
 admin.site.register(ParaTime, ParaTimeModelAdmin)
 admin.site.register(Para, ParaModelAdmin)
-admin.site.register(StartSemester)
+admin.site.register(StartSemester, StartSemesterModelAdmin)

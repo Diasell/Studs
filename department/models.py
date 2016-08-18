@@ -1,5 +1,15 @@
 from __future__ import unicode_literals
 from django.db import models
+import datetime
+
+def group_year(date_started):
+    """
+    :param date_started: date when group was created
+    :return: str that represents the course for the group
+    """
+    today = datetime.date.today()
+    course = ((today - date_started).days / 365) + 1
+    return u"%s course" % course
 
 
 class FacultyModel(models.Model):
@@ -132,7 +142,7 @@ class StudentGroupModel(models.Model):
     )
 
     def __unicode__(self):
-        return u"%s" % self.title
+        return u"%s, %s" % (self.title, group_year(self.date_started))
 
 
 class Disciplines(models.Model):
@@ -274,4 +284,4 @@ class StartSemester(models.Model):
     semesterend = models.DateField(verbose_name=u"Ends")
 
     def __unicode__(self):
-        return u"%s, %s" % (self.title, self.semesterstart.year)
+        return u"%s" % self.title
