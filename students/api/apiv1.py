@@ -1,9 +1,14 @@
 import datetime
-from PIL import Image
-from datetime import timedelta
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
+from ..util import (
+    group_year,
+    for_ios_format,
+    is_valid_image,
+    ifweekiseven,
+    get_weektype
+)
 from rest_framework import status, views
 
 from django.contrib.auth.models import User, Group
@@ -44,49 +49,6 @@ from department.models import (
     FacultyModel,
     DepartmentModel
 )
-
-
-def ifweekiseven(todaysdata, datastart):
-    """
-    Helper function that tracks what week is now from the certain
-    day. For us it important when we calculate schedule as we  have to
-    know whether it is even week or odd
-    :param todaysdata: type datetime
-    :param datastart: data when semester starts
-    """
-
-    weekday1e = datastart.weekday()
-    mondaydelta = timedelta(weekday1e)
-    monday = datastart - mondaydelta
-    delta = ((todaysdata - monday) / 7).days + 1
-
-    if delta % 2 == 0:
-        return True
-    else:
-        return False
-
-
-def get_weektype(date):
-    """
-    Checks what is the weektype
-    :param date: datetime.date type value
-    :return: True/False/None
-    """
-    semesters = StartSemester.objects.all()
-    for semester in semesters:
-        if semester.semesterstart <= date \
-                and semester.semesterend >=date:
-            return ifweekiseven(date, semester.semesterstart)
-    return None
-
-
-def is_valid_image(file):
-    "uses Pillow to check whether file is an image"
-    image = Image.open(file)
-    valid_formats = ['jpeg', 'jpg', 'png']
-    if image.format.lower() in valid_formats:
-        return True
-    return False
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -487,7 +449,9 @@ class ListFacultyView(APIView):
                     department=department
                 )
                 for group in groups_list:
-                    groups.append((group.title, group.date_started))
+                    groups.append((group.title,
+                                   group.date_started,
+                                   group_year(group.date_started)))
             response[faculty.title] = groups
-
-        return Response(response, status=status.HTTP_200_OK)
+            print response
+        return Response(for_ios_format(response), status=status.HTTP_200_OK)
