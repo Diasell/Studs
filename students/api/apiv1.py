@@ -449,9 +449,9 @@ class ListFacultyView(APIView):
                     department=department
                 )
                 for group in groups_list:
-                    groups.append((group.title,
+                    groups.append([group.title,
                                    group.date_started,
-                                   group_year(group.date_started)))
+                                   group_year(group.date_started)])
             response[faculty.title] = groups
-            print response
+
         return Response(for_ios_format(response), status=status.HTTP_200_OK)

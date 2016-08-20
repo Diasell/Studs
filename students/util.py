@@ -28,7 +28,7 @@ def for_ios_format(response):
                 group_t[group[0]] = group_v
             else:
                 values = group_t[group[0]]
-                values.append(group[1],group[2])
+                values.append([group[1],group[2]])
                 group_t[group[0]] = values
         updated_response[key] = group_t
     return updated_response
