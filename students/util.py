@@ -24,12 +24,13 @@ def for_ios_format(response):
         group_t = dict()
         for group in response[key]:
             if group[0] not in group_t:
-                group_v = [group[1],group[2]]
-                group_t[group[0]] = group_v
+                course = dict()
+                course[group[2]] = group[1]
+                group_t[group[0]] = course
             else:
-                values = group_t[group[0]]
-                values.append([group[1],group[2]])
-                group_t[group[0]] = values
+                courses = group_t[group[0]]
+                courses[group[2]] = group[1]
+                group_t[group[0]] = courses
         updated_response[key] = group_t
     return updated_response
 
