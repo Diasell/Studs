@@ -1,12 +1,10 @@
 import datetime
 from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
 
 from ..util import (
     group_year,
     for_ios_format,
     is_valid_image,
-    ifweekiseven,
     get_weektype
 )
 from rest_framework import status, views
@@ -19,7 +17,7 @@ from rest_framework.authentication import (
 
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -30,7 +28,15 @@ from students.api.serializers import (
     UserSerializer,
     GroupSerializer,
     ProfileSerializer,
-    ParaSerializer
+    ParaSerializer,
+)
+from docs_serializer import (
+    RegisterViewSerializer,
+    LoginViewSerializer,
+    AuthorizationSerializer,
+    GroupStudentsSerializer,
+    GetStJournalSerializer
+
 )
 from professors.api.serializers import (
     StudentJournalSerializer
@@ -83,10 +89,11 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 class LoginAPIView(APIView):
     """
-    API that allows users to get a Token while authorization
+    API that allows users login and get unique Token.
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (AllowAny,)
+    serializer_class = LoginViewSerializer
 
     def post(self, request, format=None):
         username = request.data["username"]
@@ -122,10 +129,11 @@ class LoginAPIView(APIView):
 
 class RegisterAPIView(APIView):
     """
-    API that allows users to register a new account
+    API that allows users to register a new account.
     """
     permission_classes = (AllowAny,)
-    parser_classes = (MultiPartParser,)
+    parser_classes = (MultiPartParser, JSONParser)
+    serializer_class =  RegisterViewSerializer
 
     def post(self, request, format=None):
         # obligatory fields
@@ -139,7 +147,12 @@ class RegisterAPIView(APIView):
         group_started = request.data['group_started']
         faculty = request.data['faculty']
         email = request.data['email']
-        photo = request.FILES['photo']
+
+        if len(request.FILES) != 0:
+            photo_flag = True
+            photo = request.FILES['photo']
+        else:
+            photo_flag = False
 
         faculty = FacultyModel.objects.filter(title=faculty)
         user_group = StudentGroupModel.objects.filter(
@@ -147,13 +160,14 @@ class RegisterAPIView(APIView):
             date_started=group_started
         )
         # validation user input
-        try:
-            is_valid_image(photo)
-        except Exception:
-            return Response({
-                'Failed': "attachment format is not supported"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        if photo_flag:
+            try:
+                is_valid_image(photo)
+            except Exception:
+                return Response({
+                    'Failed': "attachment format is not supported"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
         if User.objects.filter(username=username):
             return Response({
                 'Failed': "username is already taken"},
@@ -190,16 +204,25 @@ class RegisterAPIView(APIView):
                     email=email
                 )
                 new_user.save()
-
-                new_user_profile = ProfileModel(
-                    user=new_user,
-                    is_student=True,
-                    student_group=user_group[0],
-                    faculty=faculty[0],
-                    started_date=group_started,
-                    birthday=birthday,
-                    photo=photo
-                )
+                if photo_flag:
+                    new_user_profile = ProfileModel(
+                        user=new_user,
+                        is_student=True,
+                        student_group=user_group[0],
+                        faculty=faculty[0],
+                        started_date=group_started,
+                        birthday=birthday,
+                        photo=photo
+                    )
+                else:
+                    new_user_profile = ProfileModel(
+                        user=new_user,
+                        is_student=True,
+                        student_group=user_group[0],
+                        faculty=faculty[0],
+                        started_date=group_started,
+                        birthday=birthday
+                    )
                 new_user_profile.save()
 
                 token = Token.objects.get_or_create(user=new_user)[0]
@@ -226,10 +249,13 @@ class RegisterAPIView(APIView):
 
 class TodayScheduleView(views.APIView):
     """
-    API that returns JSON with schedule for user who is requesting
+    API that returns JSON with schedule for user.
+    User can be either student or professor.
     """
+
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, )
+    serializer_class = AuthorizationSerializer
 
     def get(self, request, format=None):
         user = request.user
@@ -271,6 +297,7 @@ class WeeklyScheduleView(views.APIView):
     """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+    serializer_class = AuthorizationSerializer
 
     def get(self, request, format=None):
         user = request.user
@@ -318,10 +345,11 @@ class WeeklyScheduleView(views.APIView):
 
 class GroupStudentListView(views.APIView):
     """
-    API endpoint to show all the users for the given group
+    API endpoint to show all the students for the given group
     """
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
+    serializer_class = GroupStudentsSerializer
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -348,6 +376,7 @@ class StudentClassJournalView(views.APIView):
 
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, )
+    serializer_class = GetStJournalSerializer
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -406,6 +435,7 @@ class ListOfDisciplinesView(APIView):
 
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+    serializer_class = AuthorizationSerializer
 
     def get(self, request):
         user = request.user

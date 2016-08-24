@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # 3rd party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_docs',
     'debug_toolbar',
     # my apps
     'students',
@@ -142,12 +143,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     )
 }
+
+REST_FRAMEWORK_DOCS = {
+    'HIDE_DOCS': False
+}
+
 
 ############## LOGGER CONFIG #################
 # LOGGING = {

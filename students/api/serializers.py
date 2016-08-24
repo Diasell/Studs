@@ -208,3 +208,7 @@ class ParaSerializer(serializers.ModelSerializer):
             'para_group',
             'week_type'
         )
+
+
+
+
