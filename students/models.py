@@ -106,6 +106,10 @@ class ProfileModel(models.Model):
 
 class StudentJournalModel(models.Model):
 
+    class Meta(object):
+        verbose_name = u"Student Journal"
+        verbose_name_plural = u"Student Journal"
+
     value = models.CharField(
         max_length=55,
         blank=True,

@@ -1,6 +1,6 @@
 import datetime
-from datetime import timedelta
-from django.contrib.auth import authenticate
+# from datetime import timedelta
+# from django.contrib.auth import authenticate
 
 from rest_framework import status
 
@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 from rest_framework.authentication import (
     TokenAuthentication,
-    BasicAuthentication,
+    # BasicAuthentication,
 
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -17,13 +17,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-from rest_framework import viewsets
-from rest_framework.authtoken.models import Token
-from students.api.serializers import (
-    UserSerializer,
-    GroupSerializer,
-    ProfileSerializer,
-)
+# from rest_framework import viewsets
+# from rest_framework.authtoken.models import Token
+# from students.api.serializers import (
+#     UserSerializer,
+#     GroupSerializer,
+#     ProfileSerializer,
+# )
 
 from department.models import (
     Disciplines,
@@ -43,6 +43,7 @@ from students.models import (
 class StudentJournalInstanceView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, )
+    serializer_class = StudentJournalSerializer
 
 
     def post(self, request, *args, **kwargs):
