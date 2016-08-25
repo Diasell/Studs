@@ -34,6 +34,9 @@ from department.models import (
 from professors.api.serializers import (
     StudentJournalSerializer
 )
+from students.api.docs_serializer import (
+    AuthorizationSerializer
+)
 from students.models import (
     ProfileModel,
     StudentJournalModel
@@ -125,6 +128,7 @@ class GroupsListView(APIView):
     """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+    serializer_class = AuthorizationSerializer
 
     def get(self, request):
         user = request.user
