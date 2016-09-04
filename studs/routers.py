@@ -6,7 +6,6 @@ from professors.api import  apiv1 as apiv1p
 from blog.api import apiv1 as apiv1b
 
 
-
 router = HybridRouter()
 
 # viewsets:
