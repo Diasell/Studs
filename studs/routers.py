@@ -47,3 +47,11 @@ router.add_api_view("Get Faculty group structure",
                     url(r'^get_faculties_structure/$',
                         apiv1s.ListFacultyView.as_view(),
                         name='faculty-structure-view'))
+router.add_api_view("Add\update student journal",
+                    url(r'^post_st_journal/$',
+                        apiv1p.StudentJournalInstanceView.as_view(),
+                        name='journal-create/update-view'))
+router.add_api_view("Get current groups that professor is teaching",
+                    url(r'^get_teaching_groups/$',
+                        apiv1p.GroupsListView.as_view(),
+                        name='prof-groups-view'))
