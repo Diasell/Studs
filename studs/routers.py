@@ -55,3 +55,7 @@ router.add_api_view("Get current groups that professor is teaching",
                     url(r'^get_teaching_groups/$',
                         apiv1p.GroupsListView.as_view(),
                         name='prof-groups-view'))
+router.add_api_view("Add Comment to Blog Item",
+                    url(r'^add_comment/$',
+                    apiv1b.AddCommentView.as_view(),
+                    name='add-comment'))

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import BlogItemModel
+from ..models import BlogItemModel, CommentModel
 
 
 class BlogItemShortSerializer(serializers.ModelSerializer):
@@ -30,4 +30,20 @@ class BlogItemDetailedSerializer(serializers.ModelSerializer):
             'content',
             'created',
             'updated'
+        )
+
+
+class CommentModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CommentModel
+        fields = (
+            'id',
+            'user',
+            'comment',
+            'created',
+            'updated',
+            'blog_post',
+            'is_removed',
+            'is_visible'
         )
