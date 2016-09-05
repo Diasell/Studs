@@ -161,6 +161,11 @@ class RegisterAPIView(APIView):
         )
         # validation user input
         if photo_flag:
+            if photo.size > (2048*1024):
+                return Response(
+                    {'Failed': 'image size is greater than 2MB'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
             try:
                 is_valid_image(photo)
             except Exception:
@@ -233,6 +238,8 @@ class RegisterAPIView(APIView):
                 response['email'] = new_user.email
                 response['group'] = new_user_profile.student_group.title
                 response['faculty'] = new_user_profile.faculty.title
+                if photo_flag:
+                    response['photo'] = photo
 
                 return Response(
                     response,
