@@ -350,6 +350,58 @@ class WeeklyScheduleView(views.APIView):
                             status=status.HTTP_401_UNAUTHORIZED)
 
 
+class NextWeeklyScheduleView(views.APIView):
+    """
+    API endpoint to get user schedule for next week
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AuthorizationSerializer
+
+    def get(self, request, format=None):
+        user = request.user
+        todaysdate = datetime.date.today()
+        weektype = not get_weektype(todaysdate)
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        result = dict()
+        if user.is_active:
+            if ProfileModel.objects.get(user=user).is_student:
+                student_group = ProfileModel.objects.get(user=user).student_group
+
+                for day in range(0, 5):
+                    classes = Para.objects.filter(
+                        para_group=student_group,
+                        para_day__dayoftheweeknumber=day,
+                        week_type=weektype
+                    )
+
+                    day_js = dict()
+                    for i, para in enumerate(classes):
+                        day_js["para_%s" % i] = ParaSerializer(para).data
+
+                    result["%s" % days[day]] = day_js
+
+                return Response(result, status=status.HTTP_200_OK)
+
+            elif ProfileModel.objects.get(user=user).is_professor:
+                for day in range(0, 5):
+                    classes = Para.objects.filter(
+                        para_professor=ProfileModel.objects.get(user=user),
+                        para_day__dayoftheweeknumber=day,
+                        week_type=weektype
+                    )
+
+                    day_js = dict()
+                    for i, para in enumerate(classes):
+                        day_js["para_%s" % i] = ParaSerializer(para).data
+
+                    result["%s" % days[day]] = day_js
+                return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"UnAuth": "Current user is not active"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+
 class GroupStudentListView(views.APIView):
     """
     API endpoint to show all the students for the given group

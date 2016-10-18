@@ -31,6 +31,10 @@ router.add_api_view("User Schedule for current week",
                    url(r'^get_user_weekly_schedule/$',
                        apiv1s.WeeklyScheduleView.as_view(),
                        name='weekly-schedule-view'))
+router.add_api_view("User Schedule for NEXT week",
+                    url(r'^get_user_next_week_schedule/$',
+                        apiv1s.NextWeeklyScheduleView.as_view(),
+                        name='next-week-schedule-view'))
 router.add_api_view("Show all the students for the given group",
                    url(r'^get_students_group_list/$',
                        apiv1s.GroupStudentListView.as_view(),
