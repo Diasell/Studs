@@ -33,17 +33,17 @@ class BlogItemDetailedSerializer(serializers.ModelSerializer):
         )
 
 
-class CommentModelSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CommentModel
-        fields = (
-            'id',
-            'user',
-            'comment',
-            'created',
-            'updated',
-            'blog_post',
-            'is_removed',
-            'is_visible'
-        )
+# class CommentModelSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = CommentModel
+#         fields = (
+#             'id',
+#             'user',
+#             'comment',
+#             'created',
+#             'updated',
+#             'blog_post',
+#             'is_removed',
+#             'is_visible'
+#         )
