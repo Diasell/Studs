@@ -393,7 +393,7 @@ class NextWeeklyScheduleView(views.APIView):
 
                     day_js = dict()
                     for i, para in enumerate(classes):
-                        day_js["para_%s" % i] = ParaSerializer(para).data
+                        day_js["para_%s" % ParaSerializer(para).data['para_number']] = ParaSerializer(para).data
 
                     result["%s" % days[day]] = day_js
                 return Response(result, status=status.HTTP_200_OK)
