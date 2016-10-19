@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import BlogItemModel, CommentModel
+from ..models import BlogItemModel
 
 
 class BlogItemShortSerializer(serializers.ModelSerializer):
