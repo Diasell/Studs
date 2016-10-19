@@ -9,7 +9,7 @@ from rest_framework.authentication import (
     TokenAuthentication,
     BasicAuthentication,
 )
-from ..models import BlogItemModel, CommentModel
+from ..models import BlogItemModel
 
 from .serializers import (
     BlogItemDetailedSerializer,
