@@ -271,13 +271,18 @@ class TodayScheduleView(views.APIView):
         current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
         today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
         if user.is_active:
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
             if ProfileModel.objects.get(user=user).is_student:
                 student_group = ProfileModel.objects.get(user=user).student_group
 
                 classes_for_today = Para.objects.filter(
                     para_group=student_group,
                     para_day=today,
-                    week_type=weektype
+                    week_type=weektype,
+                    semester=current_semester
                 )
                 result = dict()
                 for i, para in enumerate(classes_for_today):
@@ -313,6 +318,10 @@ class WeeklyScheduleView(views.APIView):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
         result = dict()
         if user.is_active:
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
             if ProfileModel.objects.get(user=user).is_student:
                 student_group = ProfileModel.objects.get(user=user).student_group
 
@@ -320,7 +329,8 @@ class WeeklyScheduleView(views.APIView):
                     classes = Para.objects.filter(
                         para_group=student_group,
                         para_day__dayoftheweeknumber=day,
-                        week_type=weektype
+                        week_type=weektype,
+                        semester = current_semester
                     )
 
                     day_js = dict()
@@ -336,7 +346,8 @@ class WeeklyScheduleView(views.APIView):
                     classes = Para.objects.filter(
                         para_professor=ProfileModel.objects.get(user=user),
                         para_day__dayoftheweeknumber=day,
-                        week_type=weektype
+                        week_type=weektype,
+                        semester=current_semester
                     )
 
                     day_js = dict()
@@ -365,6 +376,10 @@ class NextWeeklyScheduleView(views.APIView):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
         result = dict()
         if user.is_active:
+            current_semester = StartSemester.objects.get(
+                semesterstart__lt=todaysdate,
+                semesterend__gt=todaysdate
+            )
             if ProfileModel.objects.get(user=user).is_student:
                 student_group = ProfileModel.objects.get(user=user).student_group
 
@@ -372,7 +387,8 @@ class NextWeeklyScheduleView(views.APIView):
                     classes = Para.objects.filter(
                         para_group=student_group,
                         para_day__dayoftheweeknumber=day,
-                        week_type=weektype
+                        week_type=weektype,
+                        semester=current_semester,
                     )
 
                     day_js = dict()
@@ -388,7 +404,8 @@ class NextWeeklyScheduleView(views.APIView):
                     classes = Para.objects.filter(
                         para_professor=ProfileModel.objects.get(user=user),
                         para_day__dayoftheweeknumber=day,
-                        week_type=weektype
+                        week_type=weektype,
+                        semester=current_semester
                     )
 
                     day_js = dict()
