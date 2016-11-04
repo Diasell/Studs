@@ -474,11 +474,10 @@ class StudentClassJournalView(views.APIView):
             except Exception:
                 end_date = current_semester.semesterend
 
-            student = self.request.data['student']
             discipline = self.request.data['discipline']
 
             journal = StudentJournalModel.objects.filter(
-                student=User.objects.get(username=student),
+                student=user,
                 discipline=Disciplines.objects.get(discipline=discipline),
                 date__range=[start_date, end_date]
             )
@@ -563,5 +562,3 @@ class ListFacultyView(APIView):
             response[faculty.title] = groups
 
         return Response(for_ios_format(response), status=status.HTTP_200_OK)
-
-# test commit
