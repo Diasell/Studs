@@ -5,7 +5,8 @@ from ..util import (
     group_year,
     for_ios_format,
     is_valid_image,
-    get_weektype
+    get_weektype,
+    custom_logger,
 )
 from rest_framework import status, views
 
@@ -429,6 +430,7 @@ class GroupStudentListView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         user = request.user
+        custom_logger(request.data, request.user)
         if user.is_active:
             requested_group = self.request.data["group"]
 

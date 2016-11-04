@@ -123,3 +123,22 @@ class HybridRouter(routers.DefaultRouter):
                 return response.Response(ret)
 
         return APIRoot.as_view()
+
+
+def format_time(str):
+    x = str.replace(" ",'')
+    y = x.replace('.','_')
+    result = y.replace(':','_')
+    return result
+
+def custom_logger(data, user):
+    """
+    :param request: request.data  that comes from the clients request
+    creates and saves new file with request data
+    """
+    path = "..//logs//"
+    time = format_time(str(datetime.datetime.now()))
+    filename = path + time + '.log'
+    with open(filename, "w+") as f:
+        f.write(str(user) + ':' + str(data))
+
