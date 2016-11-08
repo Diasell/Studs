@@ -3,7 +3,7 @@ from django.conf.urls import url
 from students.util import HybridRouter
 from students.api import apiv1 as apiv1s
 from professors.api import  apiv1 as apiv1p
-from blog.api import apiv1 as apiv1b
+# from blog.api import apiv1 as apiv1b
 
 
 router = HybridRouter()
