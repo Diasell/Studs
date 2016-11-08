@@ -136,7 +136,7 @@ def custom_logger(data, user):
     :param request: request.data  that comes from the clients request
     creates and saves new file with request data
     """
-    path = "..\\logs\\"
+    path = "..\\media\\logs\\"
     time = format_time(str(datetime.datetime.now()))
     filename = path + time + '.log'
     with open(filename, "w+") as f:
