@@ -7,6 +7,7 @@ from professors.api import  apiv1 as apiv1p
 
 
 router = HybridRouter()
+chatbot_router = HybridRouter()
 
 # viewsets:
 #router.register(r'App Users', apiv1s.UserViewSet)
@@ -63,3 +64,7 @@ router.add_api_view("Get current groups that professor is teaching",
 #                     url(r'^add_comment/$',
 #                     apiv1b.AddCommentView.as_view(),
 #                     name='add-comment'))
+chatbot_router.add_api_view("send chat bot message",
+                    url(r'^test$',
+                        apiv1s.TestChatBotView.as_view(),
+                        name='test'))

@@ -16,20 +16,14 @@ Including another URLconf
 from .settings import MEDIA_ROOT, DEBUG
 from django.conf.urls import url, include, patterns
 from django.contrib import admin
-from .routers import router
+from .routers import router, chatbot_router
 
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/', include(router.urls)),
-    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    # POST/PUT STUDENT JOURNAL ITEM (PROFESSORS ONLY)
-    #url(r'^api/v1/post_st_journal/$', apiv1p.StudentJournalInstanceView.as_view(), name='Journal'),
-
-    # GET GROUPS THAT PROFESSOR IS TEACHING IN THIS SEMESTER
-    #url(r'^api/v1/get_teaching_groups/$', apiv1p.GroupsListView.as_view(), name='GroupsListForProfessor'),
+    url(r'^chatbot/', include(chatbot_router.urls)),
     url(r'^docs/', include('rest_framework_docs.urls')),
 
 ]

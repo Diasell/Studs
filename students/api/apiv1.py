@@ -1,5 +1,7 @@
-import datetime
+import json, requests, datetime
+
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 
 from ..util import (
     group_year,
@@ -562,3 +564,48 @@ class ListFacultyView(APIView):
             response[faculty.title] = groups
 
         return Response(for_ios_format(response), status=status.HTTP_200_OK)
+
+
+class TestChatBotView(APIView):
+    permission_classes = (AllowAny, )
+
+    def post(self, request):
+        data = request.data
+        chat_id = data['message']['chat']['id']
+        text = data['message']['text']
+        print text
+
+        if text == '/schedule':
+            user = User.objects.get(username='380939009002')
+            todaysdate = datetime.date.today()
+            weektype = get_weektype(todaysdate)
+            current_weekday = datetime.date.today().weekday()  # integer 0-monday .. 6-Sunday
+            today = WorkingDay.objects.get(dayoftheweeknumber=current_weekday)
+            if user.is_active:
+                current_semester = StartSemester.objects.get(
+                    semesterstart__lt=todaysdate,
+                    semesterend__gt=todaysdate
+                )
+                if ProfileModel.objects.get(user=user).is_student:
+                    student_group = ProfileModel.objects.get(user=user).student_group
+
+                    classes_for_today = Para.objects.filter(
+                        para_group=student_group,
+                        para_day=today,
+                        week_type=weektype,
+                        semester=current_semester
+                    )
+                    result = ''
+                    for i, para in enumerate(classes_for_today):
+                        result += ParaSerializer(para).data['para_number'] + ' : ' + ParaSerializer(para).data['discipline']+ "\n"
+                    a = {}
+                    a["chat_id"] = chat_id
+                    a['text'] = result
+                    req = requests.post('https://api.telegram.org/bot289647729:AAENTWQjxU_JMOxnaEqffkwKqjhwV3NWHmU/sendMessage', a)
+        else:
+            a = {}
+            a["chat_id"] = chat_id
+            a['text'] = "commands:\n/schedule" + '\n' + 'chat_id: ' + str(chat_id)
+            req = requests.post('https://api.telegram.org/bot289647729:AAENTWQjxU_JMOxnaEqffkwKqjhwV3NWHmU/sendMessage',a)
+
+        return Response(req.json(), status=req.status_code)
