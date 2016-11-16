@@ -75,10 +75,11 @@ class LoginAPIView(APIView):
             if account.is_active:
                 token = Token.objects.get_or_create(user=account)[0]
                 user = User.objects.get(username=username)
-                result = ProfileSerializer(user.profilemodel).data
-                result['Authorization'] = "Token %s" % token
-                response = json.dumps(result)
-                return Response(response, status=status.HTTP_200_OK)
+                profile =ProfileSerializer(user.profilemodel).data
+                result = dict()
+                for key in profile:
+                    result[key] = profile[key]
+                return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({
                 'status': 'Unauthorized',
