@@ -60,36 +60,6 @@ from department.models import (
 )
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows user groups to be viewed or edited.
-    """
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
-
-class StudentViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows students to be viewed or edited
-    """
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = ProfileModel.objects.filter(is_student=True)
-    serializer_class = ProfileSerializer
-
-
 class LoginAPIView(APIView):
     """
     API that allows users login and get unique Token.
