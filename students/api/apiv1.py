@@ -530,7 +530,6 @@ class TestChatBotView(APIView):
         data = request.data
         chat_id = data['message']['chat']['id']
         text = data['message']['text']
-        print text
 
         if text == '/schedule':
             user = User.objects.get(username='380939009002')
