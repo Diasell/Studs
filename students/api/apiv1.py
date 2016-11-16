@@ -1,7 +1,5 @@
 import json, requests, datetime
 
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 
 from ..util import (
     group_year,
@@ -13,20 +11,19 @@ from ..util import (
 from rest_framework import status, views
 
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate
 
 from rest_framework.authentication import (
     TokenAuthentication,
     BasicAuthentication,
-
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-
-from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
+
+
 from students.api.serializers import (
     UserSerializer,
     GroupSerializer,
@@ -78,19 +75,10 @@ class LoginAPIView(APIView):
             if account.is_active:
                 token = Token.objects.get_or_create(user=account)[0]
                 user = User.objects.get(username=username)
-                profile = ProfileModel.objects.get(user=user)
-                response = dict()
-                response['Authorization'] = "Token %s" % token
-                response['full_name'] = user.get_full_name()
-                response['email'] = user.email
-                photo = ProfileSerializer(profile).data['photo']
-                response['photo'] = photo
-                response['group'] = profile.student_group.title
-                response['faculty'] = profile.faculty.title
-                return Response(
-                    response,
-                    status=status.HTTP_200_OK
-                )
+                result = ProfileSerializer(user.profilemodel).data
+                result['Authorization'] = "Token %s" % token
+                response = json.dumps(result)
+                return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({
                 'status': 'Unauthorized',
@@ -398,21 +386,20 @@ class GroupStudentListView(views.APIView):
     """
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
-    serializer_class = GroupStudentsSerializer
+    serializer_class = AuthorizationSerializer
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = request.user
-        custom_logger(request.data, request.user)
         if user.is_active:
-            requested_group = self.request.data["group"]
-
+            requested_group = user.profilemodel.student_group
             list_of_students = ProfileModel.objects.filter(
-                student_group__title=requested_group
+                student_group=requested_group
             )
-            result = dict()
-            for number, student in enumerate(list_of_students):
-                result[number+1] = ProfileSerializer(student).data
-            return Response(result, status=status.HTTP_200_OK)
+            result = []
+            for student in list_of_students:
+                result.append(ProfileSerializer(student).data)
+            response = json.dumps(result)
+            return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({"UnAuth": "Current user is not active"},
                             status=status.HTTP_401_UNAUTHORIZED)
