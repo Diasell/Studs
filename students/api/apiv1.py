@@ -79,6 +79,7 @@ class LoginAPIView(APIView):
                 result = dict()
                 for key in profile:
                     result[key] = profile[key]
+                result['Authorization'] = "Token %s" % token
                 return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({
