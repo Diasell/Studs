@@ -399,9 +399,12 @@ class GroupStudentListView(views.APIView):
             )
             result = []
             for student in list_of_students:
-                result.append(ProfileSerializer(student).data)
-            response = json.dumps(result)
-            return Response(response, status=status.HTTP_200_OK)
+                stud_dict = dict()
+                temp = ProfileSerializer(student).data
+                for key in temp:
+                    stud_dict[key] = temp[key]
+                result.append(stud_dict)
+            return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({"UnAuth": "Current user is not active"},
                             status=status.HTTP_401_UNAUTHORIZED)
