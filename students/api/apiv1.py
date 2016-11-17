@@ -492,9 +492,11 @@ class ListOfDisciplinesView(APIView):
                 semester=current_semester,
                 para_group=student_group
             ).values_list('para_subject__discipline', flat=True).distinct()
+            items = list(disciplines)
+            items = sorted(items)
             response = []
 
-            for discipline in disciplines:
+            for discipline in items:
                 result = dict()
                 result['para'] = discipline
                 para = Para.objects.filter(
