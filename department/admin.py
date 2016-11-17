@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (
     DepartmentModel,
+    FacultyModel,
     StudentGroupModel,
     Disciplines,
     Para,
@@ -44,6 +45,11 @@ class DepartmentModelAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+class FacultyModelAdmin(admin.ModelAdmin):
+    list_display = ["__unicode__"]
+    search_fields = ["title"]
+
+
 class ParaTimeModelAdmin(admin.ModelAdmin):
     list_display = ["__unicode__", "faculty"]
     list_filter = ["faculty__title", ]
@@ -71,6 +77,7 @@ class StudentGroupModelAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(DepartmentModel, DepartmentModelAdmin)
+admin.site.register(FacultyModel, FacultyModelAdmin)
 admin.site.register(StudentGroupModel, StudentGroupModelAdmin)
 admin.site.register(Disciplines, DisciplinesModelAdmin)
 admin.site.register(Rooms, RoomsModelAdmin)
